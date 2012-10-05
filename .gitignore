@@ -2,7 +2,7 @@
 # grails 2.1.0 grails integrate-with --git command 
 
 # web application files
-/web-app/WEB-INF
+/web-app/WEB-INF/tld
 
 # IDE support files
 /.classpath

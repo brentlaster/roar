@@ -5,13 +5,15 @@ import spock.lang.Unroll
 
 @TestFor(Entry)
 class AnimalResponderSpec extends ConstraintUnitSpec {
+	
+	def propertyMissing(String name) { Entry[name] }
 
     def setup() {
         //mock an entry with some data (put unique violations in here so they can be tested, the others aren't needed)
-        mockForConstraintsTests(Entry, [new Entry(agentName: 'perry')])
+        mockForConstraintsTests(Entry, [new Entry(agentName: 'Road Runner', agentType: 'bird', advName: 'Wile E. Coyote', advTech: 'ACME product du jour')])
     }
 
-    @Unroll({"test entry controller all constraints $field is $error"})
+    @Unroll ("test entry controller all constraints #field is #error")
     def "test animal responder entry all constraints"() {
         when:
         def obj = new Entry("$field": val)
@@ -21,170 +23,62 @@ class AnimalResponderSpec extends ConstraintUnitSpec {
 
         where:
         error | field | val
-        'size' | 'firstName' | getLongString(51)
-        'nullable' | 'firstName' | null
-        'size' | 'middleName' | getLongString(51)
-        'nullable' | 'middleName' | null
-        'size' | 'lastName' | getLongString(51)
-        'nullable' | 'lastName' | null
-        'notEqual' | 'email' | 'bill@microsoft.com'
-        'email' | 'email' | getEmail(false)
-        'range' | 'age' | 151
-        'range' | 'age' | -1
-        'nullable' | 'age' | null
-        'blank' | 'ssn' | ''
-        'unique' | 'ssn' | '123456789'
-        'creditCard' | 'amex' | getCreditCard(false)
-        'inList' | 'gender' | 'Unknown'
-        'matches' | 'login' | 'ABC123'
-        'max' | 'birthDate' | new Date() + 1
-        'min' | 'wage' | -1F
-        'maxSize' | 'children' | createPerson(11)
-        'minSize' | 'children' | createPerson(1)
-        'url' | 'homePage' | getUrl(false)
-        'invalid.bountyhunter' | 'username' | 'buba'
-    }
+        'size' | 'agentName' | getLongString(26)
+        'nullable' | 'agentName' | null
+        'size' | 'agentType' | getLongString(26)
+        'nullable' | 'agentType' | null
+        'size' | 'advName' | getLongString(26)
+        'nullable' | 'advName' | null
+		'size' | 'advTech' | getLongString(51)
+		'max' | 'serviceStart' | new Date() + 1
+		'max' | 'serviceLast' | new Date() + 1
+     }
 
-    @Unroll({"person $field is $error using $val"})
-    def "test person age constraints"() {
+	@Unroll("entry #field is #error using #val")
+	def "test animal responder name constraints"() {
+		when:
+		def obj = new Entry("$field": val)
+
+		then:
+		validateConstraints(obj, field, error)
+
+		where:
+		error | field | val
+		'nullable' | 'agentName' | null
+	}
+  
+
+    
+    @Unroll("entry #field is #error using #val")
+    def "test animal responder service start date constraints"() {
         when:
-        def obj = new Person("$field": val)
+        def obj = new Entry("$field": val)
 
         then:
         validateConstraints(obj, field, error)
 
         where:
         error | field | val
-        'range' | 'age' | 151
-        'range' | 'age' | -1
-        'nullable' | 'age' | null
-        'valid' | 'age' | 100
-        'valid' | 'age' | 150
-        'valid' | 'age' | 0
+        'max' | 'serviceStart' | new Date() + 1
+        'nullable' | 'serviceStart' | null
+        'valid' | 'serviceStart' | new Date() - 1
+        'valid' | 'serviceStart' | new Date()
     }
+	
+	@Unroll("entry #field is #error using #val")
+	def "test animal responder service last service date constraints"() {
+		when:
+		def obj = new Entry("$field": val)
 
-    @Unroll({"person $field is $error using $val"})
-    def "test person ssn constraints"() {
-        when:
-        def obj = new Person("$field": val)
+		then:
+		validateConstraints(obj, field, error)
 
-        then:
-        validateConstraints(obj, field, error)
+		where:
+		error | field | val
+		'max' | 'serviceLast' | new Date() + 1
+		'nullable' | 'serviceLast' | null
+		'valid' | 'serviceLast' | new Date() - 1
+		'valid' | 'serviceLast' | new Date()
+	}
 
-        where:
-        error | field | val
-        'blank' | 'ssn' | ''
-        'nullable' | 'ssn' | null
-        'unique' | 'ssn' | '123456789'
-        'valid' | 'ssn' | '123456788'
-        'valid' | 'ssn' | '123-45-6787'
-    }
-
-    @Unroll({"person $field is $error using $val"})
-    def "test person username constraints"() {
-        when:
-        def obj = new Person("$field": val)
-
-        then:
-        validateConstraints(obj, field, error)
-
-        where:
-        error | field | val
-        'invalid.bountyhunter' | 'username' | ''
-        'nullable' | 'username' | null
-        'invalid.bountyhunter' | 'username' | 'bubua'
-        'valid' | 'username' | 'bobafet'
-        'valid' | 'username' | 'bobajunior'
-    }
-
-    @Unroll({"person $field is $error using $val"})
-    def "test person homepage constraints"() {
-        when:
-        def obj = new Person("$field": val)
-
-        then:
-        validateConstraints(obj, field, error)
-
-        where:
-        error | field | val
-        'url' | 'homePage' | getUrl(false)
-        'valid' | 'homePage' | '' //blanks work for url
-        'nullable' | 'homePage' | null //null works for url (2.0.0 not anymore)
-        'valid' | 'homePage' | getUrl(true) + '/page.gsp'
-        'valid' | 'homePage' | getUrl(true)
-    }
-
-    @Unroll({"person $field is $error using $val"})
-    def "test person gender constraints"() {
-        when:
-        def obj = new Person("$field": val)
-
-        then:
-        validateConstraints(obj, field, error)
-
-        where:
-        error | field | val
-        'inList' | 'gender' | 'Unknown'
-        'nullable' | 'gender' | null
-        'valid' | 'gender' | '' //blanks work for inList
-        'valid' | 'gender' | 'Male'
-        'valid' | 'gender' | 'Female'
-    }
-
-    @Unroll({"person $field is $error using $val"})
-    def "test person credit card constraints"() {
-        when:
-        def obj = new Person("$field": val)
-
-        then:
-        validateConstraints(obj, field, error)
-
-        where:
-        error | field | val
-        'creditCard' | 'amex' | getCreditCard(false)
-        'nullable' | 'amex' | null
-        'valid' | 'amex' | ''
-        'valid' | 'amex' | getCreditCard(true)
-    }
-
-    @Unroll({"person $field is $error using $val"})
-    def "test person birth date constraints"() {
-        when:
-        def obj = new Person("$field": val)
-
-        then:
-        validateConstraints(obj, field, error)
-
-        where:
-        error | field | val
-        'max' | 'birthDate' | new Date() + 1
-        'nullable' | 'birthDate' | null
-        'valid' | 'birthDate' | new Date() - 1
-        'valid' | 'birthDate' | new Date()
-    }
-
-    @Unroll({"person $field testing $error"})
-    def "test person children constraints"() {
-        when:
-        def obj = new Person("$field": val)
-
-        then:
-        validateConstraints(obj, field, error)
-
-        where:
-        error | field | val
-        'maxSize' | 'children' | createPerson(11)
-        'minSize' | 'children' | createPerson(1)
-        'valid' | 'children' | null
-        'valid' | 'children' | createPerson(10)
-        'valid' | 'children' | createPerson(2)
-    }
-
-    private createPerson(Integer count) {
-        def persons = []
-        count.times {
-            persons << new Person()
-        }
-        persons
-    }
 }

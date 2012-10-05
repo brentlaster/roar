@@ -3,12 +3,12 @@ package roar
 class Entry {
 
     static constraints = {
-		agentName()
-		agentType()
-		advName()
-		advTech(maxSize:100)
-		serviceStart()
-		serviceLast()
+		agentName blank: false, nullable: false, unique: true, size: 1..25
+		agentType blank: false, nullable: false, size: 1..25
+		advName blank: false, nullable: false, size: 1..25
+		advTech blank: false, nullable: false, size: 1..50
+		serviceStart max: new Date()
+		serviceLast max: new Date()
 		lastUpdated()
     }
 	
