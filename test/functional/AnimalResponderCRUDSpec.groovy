@@ -86,20 +86,7 @@ class AnimalResponderCRUDSpec extends GebReportingSpec {
 	
 	@Unroll
 	def "enter the details for more agents" () {
-		when:
-			to ListPage
-			newAgentButton.click()
-		then:
-			at CreatePage
-		when:
-			agentName = aN
-			agentType = aT
-			advName = avN
-			advTech = avT
-			createButton.click()
-			to ListPage
-		then:
-			agentRows.size() == count
+		
 		where:
 			aN | aT | avN | avT | count
 			"Scooby" | "dog" | "fake ghosts" | "mask" | 1
