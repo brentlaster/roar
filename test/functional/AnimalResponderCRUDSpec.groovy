@@ -81,4 +81,30 @@ class AnimalResponderCRUDSpec extends GebReportingSpec {
 		message == "Entry $deletedId deleted"
 		agentRows.size() == 0
 	}
+	
+	
+	
+	@Unroll
+	def "enter the details for more agents" () {
+		when:
+			to ListPage
+			newAgentButton.click()
+		then:
+			at CreatePage
+		when:
+			agentName = aN
+			agentType = aT
+			advName = avN
+			advTech = avT
+			createButton.click()
+			to ListPage
+		then:
+			agentRows.size() == count
+		where:
+			aN | aT | avN | avT | count
+			"Scooby" | "dog" | "fake ghosts" | "mask" | 1
+			"Perry" | "Platypus" | "H. Doofensmirtz" | "inator" | 2
+			"Mr. Krabs" | "Crab" | "Plankton" | "various" | 3
+		
+	}
 }
